@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { db } from 'src/drizzle/db';
 import { user } from 'src/drizzle/schema';
 import { NewUserType } from 'src/drizzle/type';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
@@ -36,11 +37,25 @@ export class UsersService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: CreateUserDto) {
+    try {
+      const data = await db
+        .update(user)
+        .set(updateUserDto)
+        .where(eq(user.id, id))
+        .returning();
+      return data[0];
+    } catch (error) {
+      return error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    try {
+      const data = await db.delete(user).where(eq(user.id, id)).returning();
+      return data[0];
+    } catch (error) {
+      return error;
+    }
   }
 }
